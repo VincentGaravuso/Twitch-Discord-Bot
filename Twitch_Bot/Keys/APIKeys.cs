@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Twitch_Bot
+namespace Twitch_Bot.Keys
 {
     public static partial class APIKeys
     {

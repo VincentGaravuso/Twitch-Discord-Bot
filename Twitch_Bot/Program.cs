@@ -9,6 +9,7 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Twitch_Bot.Keys;
 
 namespace Twitch_Bot
 {
@@ -29,7 +30,7 @@ namespace Twitch_Bot
                 .AddSingleton(_commands)
                 .BuildServiceProvider();
 
-            string token = "NzQ3OTcxNTU2MTA1Mzg4MTEz.X0Woyw.d1_c3k7DdXGpufcvl9XAEROUgXI";
+            string token = APIKeys.DiscordToken;
 
             _client.Log += _client_Log;
 

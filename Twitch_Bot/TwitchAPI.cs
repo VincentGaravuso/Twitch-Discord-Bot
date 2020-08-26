@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Twitch_Bot.Keys;
 
 namespace Twitch_Bot
 {
@@ -19,8 +20,8 @@ namespace Twitch_Bot
         {
             string APICommand = $"/search/channels?query={streamID}";
             client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Client-ID", "u6te6l5iy6poovrbmh4hefxuiv4fey");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "gnsbdmben6yvq10wri2kc77o3nlxcg");
+            client.DefaultRequestHeaders.Add("Client-ID", APIKeys.TwitchClientId);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", APIKeys.TwitchBearer);
             HttpResponseMessage response = await client.GetAsync(APIString + APICommand);
             Root root = null;
             if (response.IsSuccessStatusCode)
