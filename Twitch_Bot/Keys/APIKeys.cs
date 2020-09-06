@@ -11,5 +11,6 @@ namespace Twitch_Bot.Keys
         public static readonly string DiscordToken = "";
         public static readonly string TwitchClientId = "";
         public static readonly string TwitchBearer = "";
+        public static readonly string TwitchBotConnectionString = "";
     }
 }
