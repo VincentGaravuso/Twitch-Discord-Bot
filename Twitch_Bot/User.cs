@@ -16,5 +16,9 @@ namespace Twitch_Bot
 
         [Column]
         public bool isDisplayed { get; set; }
+        [Column]
+        public string ChannelID { get; set; }
+        [Column]
+        public string ServerID { get; set; }
     }
 }

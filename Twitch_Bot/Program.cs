@@ -59,74 +59,72 @@ namespace Twitch_Bot
             while (true)
             {
                 List<User> users = Commands.GetAllUsers();
-                if (message != null)
+                //saveChannelIdToDb here
+                if (users.Count() > 0)
                 {
-                    //saveChannelIdToDb here
-                    if (users.Count() > 0)
+                    foreach (User u in users)
                     {
-                        foreach (User u in users)
+                        Task<StreamByIdRoot> streamDetailsTask = TwitchAPI.GetStreamById(u.Id.ToString());
+                        if (streamDetailsTask.Result != null)
                         {
-                            Task<StreamByIdRoot> streamDetailsTask = TwitchAPI.GetStreamById(u.Id.ToString());
-                            if (streamDetailsTask.Result != null)
+                            StreamByIdRoot streamDetails = streamDetailsTask.Result;
+                            ulong chanID = Convert.ToUInt64(u.ChannelID);
+                            var chan = _client.GetChannel(chanID) as IMessageChannel;
+                            try
                             {
-                                StreamByIdRoot streamDetails = streamDetailsTask.Result;
-                                try
+                                if (streamDetails.streams.Count == 0)
                                 {
-                                    if(streamDetails.streams.Count == 0)
+                                    if (u.isDisplayed)
                                     {
-                                        if (u.isDisplayed)
-                                        {
-                                            u.isDisplayed = false;
-                                        }
+                                        u.isDisplayed = false;
                                     }
-                                    else if (streamDetails.streams[0].Type.ToLower() == "live")
+                                }
+                                else if (streamDetails.streams[0].Type.ToLower() == "live")
+                                {
+                                    if (!u.isDisplayed)
                                     {
-                                        if (!u.isDisplayed)
-                                        {
-                                           u.isDisplayed = true;
-                                            //Todo add game to display
-                                            Task<UserInformationRoot> userInfo = TwitchAPI.GetUserInfoById(u.Id.ToString());
-                                            Task<GameInfoRoot> gameInfo = TwitchAPI.GetGameInfoById(streamDetails.streams[0].GameId);
+                                        u.isDisplayed = true;
+                                        //Todo add game to display
+                                        Task<UserInformationRoot> userInfo = TwitchAPI.GetUserInfoById(u.Id.ToString());
+                                        Task<GameInfoRoot> gameInfo = TwitchAPI.GetGameInfoById(streamDetails.streams[0].GameId);
 
+                                        string timeStartedString = "";
+                                        try
+                                        {
                                             DateTime timeStarted = streamDetails.streams[0].StartedAt;
-                                            string timeStartedString = "";
-                                            try
-                                            {
-                                                timeStartedString = timeStarted.ToString("MM/dd/yyyy hh:mm tt");
-                                            }
-                                            catch
-                                            {
-                                                timeStartedString = "Error getting time";
-                                            }
-
-
-                                            string thumbnailUrl = streamDetails.streams[0].ThumbnailUrl;
-                                            thumbnailUrl = thumbnailUrl.Replace("-{width}x{height}", "");
-                                            string gameThumbnailUrl = gameInfo.Result.Data[0].BoxArtUrl;
-                                            gameThumbnailUrl = gameThumbnailUrl.Replace("-{width}x{height}", "");
-                                            EmbedBuilder emb = new EmbedBuilder();
-                                            emb.WithAuthor($"{streamDetails.streams[0].UserName} just went live!", $"{userInfo.Result.Data[0].ProfileImageUrl}", $"https://twitch.tv/{streamDetails.streams[0].UserName}")
-                                                .WithColor(Color.Red)
-                                                .WithTitle($"{streamDetails.streams[0].Title}").WithUrl($"https://twitch.tv/{streamDetails.streams[0].UserName}")
-                                                .AddField("Playing", $"{gameInfo.Result.Data[0].Name}", true)
-                                                .AddField("Viewers", $"{streamDetails.streams[0].ViewerCount}", true)
-                                                .WithFooter($"Started at: {timeStartedString}")
-                                                .ImageUrl = thumbnailUrl;
-                                            emb.WithThumbnailUrl(gameThumbnailUrl);
-                                            await message.Channel.SendMessageAsync(embed: emb.Build());
+                                            timeStartedString = timeStarted.ToString("MM/dd/yyyy hh:mm tt");
                                         }
-                                    }
-                                    Commands.UpdateUser(u);
-                                }
-                                catch
-                                {
-                                    await message.Channel.SendMessageAsync("Something is wrong with the database @vinny.....");
-                                }
+                                        catch
+                                        {
+                                            timeStartedString = "Error getting time";
+                                        }
 
+                                        string thumbnailUrl = streamDetails.streams[0].ThumbnailUrl;
+                                        thumbnailUrl = thumbnailUrl.Replace("-{width}x{height}", "");
+                                        string gameThumbnailUrl = gameInfo.Result.Data[0].BoxArtUrl;
+                                        gameThumbnailUrl = gameThumbnailUrl.Replace("-{width}x{height}", "");
+                                        EmbedBuilder emb = new EmbedBuilder();
+                                        emb.WithAuthor($"{streamDetails.streams[0].UserName} just went live!", $"{userInfo.Result.Data[0].ProfileImageUrl}", $"https://twitch.tv/{streamDetails.streams[0].UserName}")
+                                            .WithColor(Color.Red)
+                                            .WithTitle($"{streamDetails.streams[0].Title}").WithUrl($"https://twitch.tv/{streamDetails.streams[0].UserName}")
+                                            .AddField("Playing", $"{gameInfo.Result.Data[0].Name}", true)
+                                            .AddField("Viewers", $"{streamDetails.streams[0].ViewerCount}", true)
+                                            .WithFooter($"Started at: {timeStartedString}")
+                                            .ImageUrl = thumbnailUrl;
+                                        emb.WithThumbnailUrl(gameThumbnailUrl);
+                                        await chan.SendMessageAsync(embed: emb.Build());
+                                    }
+                                }
+                                Commands.UpdateUser(u);
+                            }
+                            catch (SqlException e)
+                            {
+                                await chan.SendMessageAsync($"Something went wrong with the database\nError: {e.Message}");
                             }
                         }
                     }
                 }
+
                 Thread.Sleep(10000);
             }
         }

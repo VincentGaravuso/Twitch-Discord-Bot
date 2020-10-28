@@ -12,11 +12,37 @@ namespace Twitch_Bot
 {
     public class Commands : ModuleBase<SocketCommandContext>
     {
+        public static List<Server> GetAllServerIDs()
+        {
+            List<Server> servers = new List<Server>();
+            using (SqlConnection connection = new SqlConnection(Keys.APIKeys.SQLConnectionString))
+            using (SqlCommand cmd = new SqlCommand("SELECT * FROM Server", connection))
+            {
+                connection.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    // Check is the reader has any rows at all before starting to read.
+                    if (reader.HasRows)
+                    {
+                        // Read advances to the next row.
+                        while (reader.Read())
+                        {
+                            Server s = new Server();
+                            // To avoid unexpected bugs access columns by name.
+                            s.ServerID = reader.GetString(reader.GetOrdinal("ServerID"));
+                            s.ChannelID = reader.GetString(reader.GetOrdinal("isDisplayed"));
+                            servers.Add(s);
+                        }
+                    }
+                }
+                return servers;
+            }
+        }
         public static List<User> GetAllUsers()
         {
             List<User> users = new List<User>();
-            using (SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\TwitchBot.mdf; Integrated Security=True"))
-            using (SqlCommand cmd = new SqlCommand("SELECT * FROM Users", connection))
+            using (SqlConnection connection = new SqlConnection(Keys.APIKeys.SQLConnectionString))
+            using (SqlCommand cmd = new SqlCommand("SELECT * FROM Subs", connection))
             {
                 connection.Open();
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -31,6 +57,8 @@ namespace Twitch_Bot
                             // To avoid unexpected bugs access columns by name.
                             u.Id = reader.GetInt32(reader.GetOrdinal("Id"));
                             u.isDisplayed = reader.GetBoolean(reader.GetOrdinal("isDisplayed"));
+                            u.ChannelID = reader.GetString(reader.GetOrdinal("ChannelID"));
+                            u.ServerID = reader.GetString(reader.GetOrdinal("ServerID"));
                             users.Add(u);
                         }
                     }
@@ -41,8 +69,8 @@ namespace Twitch_Bot
         }
         public static void UpdateUser(User u)
         {
-            using (SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\TwitchBot.mdf; Integrated Security=True"))
-            using (SqlCommand cmd = new SqlCommand("UPDATE Users SET isDisplayed = @isDisplayed WHERE Id = @Id", connection))
+            using (SqlConnection connection = new SqlConnection(Keys.APIKeys.SQLConnectionString))
+            using (SqlCommand cmd = new SqlCommand("UPDATE Subs SET isDisplayed = @isDisplayed WHERE Id = @Id", connection))
             {
                 cmd.Parameters.AddWithValue("isDisplayed", u.isDisplayed);
                 cmd.Parameters.AddWithValue("Id", u.Id);
@@ -53,11 +81,13 @@ namespace Twitch_Bot
         }
         public static void AddUser(User u)
         {
-            using (SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\TwitchBot.mdf; Integrated Security=True"))
-            using (SqlCommand cmd = new SqlCommand("INSERT INTO Users (Id, isDisplayed) VALUES (@Id, @isDisplayed)", connection))
+            using (SqlConnection connection = new SqlConnection(Keys.APIKeys.SQLConnectionString))
+            using (SqlCommand cmd = new SqlCommand("INSERT INTO Subs (Id, isDisplayed, ChannelID, ServerID) VALUES (@Id, @isDisplayed, @ChannelID, @ServerID)", connection))
             {
                 cmd.Parameters.AddWithValue("Id", u.Id);
                 cmd.Parameters.AddWithValue("isDisplayed", u.isDisplayed);
+                cmd.Parameters.AddWithValue("ChannelID", u.ChannelID);
+                cmd.Parameters.AddWithValue("ServerID", u.ServerID);
                 connection.Open();
                 cmd.ExecuteNonQuery();
                 connection.Close();
@@ -65,8 +95,8 @@ namespace Twitch_Bot
         }
         public static void RemoveUser(User u)
         {
-            using (SqlConnection connection = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\TwitchBot.mdf; Integrated Security=True"))
-            using (SqlCommand cmd = new SqlCommand("DELETE FROM Users WHERE Id = @Id", connection))
+            using (SqlConnection connection = new SqlConnection(Keys.APIKeys.SQLConnectionString))
+            using (SqlCommand cmd = new SqlCommand("DELETE FROM Subs WHERE Id = @Id", connection))
             {
                 cmd.Parameters.AddWithValue("Id", u.Id);
                 connection.Open();
@@ -91,6 +121,8 @@ namespace Twitch_Bot
                     User u = new User();
                     u.Id = int.Parse(root.Result.Data[0].Id);
                     u.isDisplayed = false;
+                    u.ServerID = Context.Guild.Id.ToString();
+                    u.ChannelID = Context.Channel.Id.ToString();
                     try
                     {
                         AddUser(u);
@@ -119,9 +151,9 @@ namespace Twitch_Bot
             {
                 allUsers = GetAllUsers();
             }
-            catch
+            catch(SqlException e)
             {
-                await ReplyAsync($"Something went wrong getting from DB");
+                await ReplyAsync($"Something went wrong getting from DB\nError: {e.Message}");
                 return;
                 //couldn't get all users
             }

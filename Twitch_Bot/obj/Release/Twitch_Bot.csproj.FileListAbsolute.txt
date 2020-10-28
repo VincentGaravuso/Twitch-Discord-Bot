@@ -36,3 +36,4 @@ C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Release\Twitch_Bot.
 C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Release\Twitch_Bot.csproj.CopyComplete
 C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Release\Twitch_Bot.exe
 C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Release\Twitch_Bot.pdb
+C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\bin\Release\Settings.job

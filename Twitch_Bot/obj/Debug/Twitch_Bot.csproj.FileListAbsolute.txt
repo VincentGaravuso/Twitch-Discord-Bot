@@ -36,5 +36,3 @@ C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Debug\Twitch_Bot.cs
 C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Debug\Twitch_Bot.csproj.CopyComplete
 C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Debug\Twitch_Bot.exe
 C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\obj\Debug\Twitch_Bot.pdb
-C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\bin\Debug\TwitchBot.mdf
-C:\Users\vinny\source\repos\Twitch\Twitch_Bot\Twitch_Bot\bin\Debug\TwitchBot_log.ldf
