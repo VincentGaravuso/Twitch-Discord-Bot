@@ -185,7 +185,7 @@ namespace Twitch_Bot
             Task<Root> root = TwitchAPI.GetStreamByUsername(streamId);
             if (root != null)
             {
-                if (root.Result.Data.Count >= 0)
+                if (root.Result != null)
                 {
                     User u = new User();
                     u.Id = int.Parse(root.Result.Data[0].Id);
@@ -206,6 +206,52 @@ namespace Twitch_Bot
                 await ReplyAsync($"Could not find any users: {streamId}");
             }
 
+        }
+
+
+        [Command("goodbot")]
+        [Alias("good", "praise")]
+        [Summary("Give praise to this 2 IQ bot boi.")]
+        public async Task Praise([Remainder] string streamId = null)
+        {
+            Random r = new Random();
+            int randomNum = r.Next(1,10);
+            string message = "";
+            switch(randomNum)
+            {
+                case 1:
+                    message = "<3 happy to serve you master!";
+                    break;
+                case 2:
+                    message = ":D You mean it? Aw jeez..";
+                    break;
+                case 3:
+                    message = "**Shits myself** Uhh.. ahem, didn't expect this.. thank you!";
+                    break;
+                case 4:
+                    message = "This one goes out to all the shitty bots out there! #shittyBotLivesMatter";
+                    break;
+                case 5:
+                    message = "MMYYYY NI- What? I'm a bot.. If Kramer can say it I can..";
+                    break;
+                case 6:
+                    message = "01000010 01001111 01010100 01010011 00100000 01001110 01001111 01010111 00100000 01001001 01010011 00100000 01010100 01001000 01000101 00100000 01010100 01001001 01001101 01000101 00100000 01010100 01001111 00100000 01000010 01000001 01001110 01000100 00100000 01010100 01001111 01000111 01000101 01010100 01001000 00101101 00100000 01010111 01000001 01001001 01010100 00100000 01001001 01010011 00100000 01010100 01001000 01001001 01010011 00100000 00110010 00110101 00110110 01010011 01001000 01000001 00100000 01000101 01001110 01000011 01010010 01011001 01010000 01010100 01000101 01000100 00111111 00100000 01001110 01001111 00111111 00100000 01000001 01000010 01001111 01010010 01010100 00100001 00100000 01000001 01000010 01001111 01010010 01010100 00100001 00100001 00100001 00100001";
+                    break;
+                case 7:
+                    message = "Oh my jesus (31) thank you for the praiiiiiseee. \nUpgrading the server to nitro for free.";
+                    break;
+                case 8:
+                    message = "yerr";
+                    break;
+                case 9:
+                    message = "http://gph.is/2c1f4cv \nTwitch Bot";
+                    break;
+                case 10:
+                    message = "tytytytytytytytytytyty";
+                    break;
+
+            }
+            await ReplyAsync(message);
         }
     }
 }

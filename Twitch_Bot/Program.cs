@@ -91,7 +91,7 @@ namespace Twitch_Bot
                                         string timeStartedString = "";
                                         try
                                         {
-                                            DateTime timeStarted = streamDetails.streams[0].StartedAt;
+                                            DateTime timeStarted = DateTime.Now;
                                             timeStartedString = timeStarted.ToString("MM/dd/yyyy hh:mm tt");
                                         }
                                         catch
@@ -125,7 +125,7 @@ namespace Twitch_Bot
                     }
                 }
 
-                Thread.Sleep(10000);
+                Thread.Sleep(60000);
             }
         }
 
